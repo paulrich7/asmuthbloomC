@@ -28,7 +28,7 @@ generatePrimes(uint32_t *primes, int num, gmp_randstate_t state) {
 		printf("generatePrimes4\n");
 		mpz_set_ui(r, x);
 		mpz_nextprime(pr, r);
-		printf("%d prime\n", mpz_get_ui(pr));
+		printf("%lu prime\n", mpz_get_ui(pr));
 		primes[i] = mpz_get_ui(pr);
 
 		// mpz_add(bc, bc, one);
@@ -110,18 +110,16 @@ uint32_t
 	uint32_t **wo = malloc((len * len / 2) * sizeof(uint32_t*));
 	uint32_t **w = malloc((len * len / 2) * sizeof(uint32_t*));
 	uint32_t **temp = powerSet(newArr, len-1, olen);
-	i = 0;
-	for (i; i < (len * len / 2); i++) {
+	for (i = 0; i < (len * len / 2); i++) {
 		wo[i] = malloc(sizeof(uint32_t) * olen);
 		w[i] = malloc(sizeof(uint32_t) * olen);
 		memcpy(wo[i], temp[i], sizeof(uint32_t) * olen);
 		memcpy(w[i], temp[i], sizeof(uint32_t) * olen);
 	}
 	printf("powerSet4\n");
-	i = 0;
-	for (i; i < (len * len / 2); i++) {
-		int j = 0;
-		for (j; j < olen; j++) {
+	for (i = 0; i < (len * len / 2); i++) {
+		int j;
+		for (j = 0; j < olen; j++) {
 			if (w[i][j] == 0) {
 				w[i][j] = x;
 			}
@@ -145,8 +143,7 @@ uint32_t
 	}
 	printf("powerSet6\n");
 
-	i = 0;
-	for (i; i < (len * len / 2); i++) {
+	for (i = 0; i < (len * len / 2); i++) {
 		free(wo[i]);
 		free(w[i]);
 	}
@@ -291,10 +288,10 @@ uint32_t
 	sequence[1] = d[0];
 	sequence[2] = d[5] * d[3];
 	sequence[3] = d[1] * d[2];
-	int i = 0;
+	int i;
 
 	uint32_t **powSet = malloc(sizeof(uint32_t*) * (n*n));
-	for (i; i < (n*n); i++) {
+	for (i = 0; i < (n*n); i++) {
 		powSet[i] = malloc(sizeof(uint32_t) * n);
 	}
 	printf("here\n");
@@ -306,8 +303,7 @@ uint32_t
 	int leftFirst = 1;
 	int rightFirst = 1;
 
-	i = 0;
-	for(i; i < (n * n); i++) {
+	for(i = 0; i < (n * n); i++) {
 		int weightTotal = 0;
 		uint32_t numTotal = 1;
 		int j = 0;
@@ -367,8 +363,7 @@ uint32_t
 	mpz_add(sDash, r, diff);
 
 	uint32_t parts[n];
-	i = 0;
-	for (i; i < n; i+2) {
+	for (i = 0; i < n; i+2) {
 		mpz_t k, seq;
 		mpz_inits(k, seq);
 		mpz_set_ui(seq, sequence[i]);
@@ -421,8 +416,8 @@ recoverSecret(uint32_t *parts, int len) {
 	uint32_t remainders[len/2];
 	uint32_t modules[len/2];
 	int index = 0;
-	int i = 0;
-	for (i; i < len; i+2) {
+	int i;
+	for (i = 0; i < len; i+2) {
 		modules[index] = parts[i];
 		remainders[index] = parts[i+1];
 		index++;
@@ -433,16 +428,14 @@ recoverSecret(uint32_t *parts, int len) {
 
 	mpz_t module;
 	mpz_init_set_ui(module, 1);
-	i = 0;
-	for (i; i < len/2; i++){
+	for (i = 0; i < len/2; i++){
 		mpz_set_ui(tempm, modules[i]);
 		mpz_mul(module, module, tempm);
 	}
 
 	mpz_t result;
 	mpz_init(result);
-	i = 0;
-	for (i; i < len/2; i++){
+	for (i = 0; i < len/2; i++){
 		mpz_t temp, tempr, ti, rmt, rmti, ra;
 		mpz_inits(temp, tempr, ti, rmt, rmti, ra);
 		mpz_set_ui(tempm, modules[i]);
