@@ -271,8 +271,8 @@ findIndex(uint32_t *arr, uint32_t t, int len) {
 // 	return parts;
 // }
 
-uint32_t
-*splitSecret(uint32_t secret, int n, int t, int N, int *w) {
+void
+splitSecret(uint32_t secret, uint32_t *parts, int n, int t, int N, int *w) {
 	printf("splitSecret\n");
 	mpz_t s;
 	mpz_init_set_ui(s, secret);
@@ -362,7 +362,6 @@ uint32_t
 
 	mpz_add(sDash, r, diff);
 
-	uint32_t parts[n];
 	for (i = 0; i < n; i += 2) {
 		mpz_t k, seq;
 		mpz_inits(k, seq);
@@ -378,8 +377,6 @@ uint32_t
 	mpz_clears(s, p, sDash, lp, rp, range, r, rm, diff, ss, sa);
 
 	printf("splitSecret2\n");
-
-	return parts;
 }
 
 // mpz_t
@@ -469,7 +466,8 @@ main() {
 		int t = 4;
 		int N = 6;
 		int w[4] = {1,1,2,2};
-		uint32_t *parts = splitSecret(secret, n, t, N, w);
+		uint32_t parts[n];
+		splitSecret(secret, parts, n, t, N, w);
 
 		uint32_t array[4] = {parts[0],parts[1],parts[4],parts[5]};
 		int recoveredSecret = recoverSecret(array, 4);
