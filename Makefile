@@ -1,6 +1,6 @@
 BINS = asmuthbloom
 
-CFLAGS = -g -Wall -Wextra
+CFLAGS = -std=c99 -g -Wall -Wextra -Wno-unused -Wno-sign-compare
 
 .PHONY: all clean
 
