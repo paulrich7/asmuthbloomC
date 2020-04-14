@@ -363,7 +363,7 @@ uint32_t
 	mpz_add(sDash, r, diff);
 
 	uint32_t parts[n];
-	for (i = 0; i < n; i+2) {
+	for (i = 0; i < n; i += 2) {
 		mpz_t k, seq;
 		mpz_inits(k, seq);
 		mpz_set_ui(seq, sequence[i]);
@@ -417,7 +417,7 @@ recoverSecret(uint32_t *parts, int len) {
 	uint32_t modules[len/2];
 	int index = 0;
 	int i;
-	for (i = 0; i < len; i+2) {
+	for (i = 0; i < len; i += 2) {
 		modules[index] = parts[i];
 		remainders[index] = parts[i+1];
 		index++;
