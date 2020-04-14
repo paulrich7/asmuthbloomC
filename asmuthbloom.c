@@ -10,20 +10,19 @@
 
 // #include "asmuthbloom.h"
 
-uint32_t
-*generatePrimes(int num, gmp_randstate_t state) {
+void
+generatePrimes(uint32_t *primes, int num, gmp_randstate_t state) {
 	printf("generatePrimes\n");
 	int bc;
 	bc = 9;
-	uint32_t primes[num];
 	mpz_t r;
 	mpz_t pr;
 	mpz_t one;
 	mpz_init(r);
 	mpz_init(pr);
 	// mpz_init_set_ui(one, 1);
-	int i = 0;
-	for (i; i < num; i++) {
+	int i;
+	for (i = 0; i < num; i++) {
 		printf("generatePrimes3\n");
 		uint32_t x = gmp_urandomb_ui(state, bc);
 		printf("generatePrimes4\n");
@@ -42,7 +41,6 @@ uint32_t
 	printf("generatePrimespr\n");
 	// mpz_clear(one);
 	printf("generatePrimes5\n");
-	return primes;
 }
 
 // mpz_t
@@ -286,7 +284,7 @@ uint32_t
 	gmp_randstate_t state;
 	gmp_randinit_default(state);
 	uint32_t *d = malloc(sizeof(uint32_t) * N);
-	memcpy(d, generatePrimes(N, state), sizeof(uint32_t) * N);
+	generatePrimes(d, N, state);
 
 	uint32_t *sequence = malloc(sizeof(uint32_t) * n);
 	sequence[0] = d[4];
