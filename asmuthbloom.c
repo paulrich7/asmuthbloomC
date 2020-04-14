@@ -21,8 +21,7 @@ generatePrimes(uint32_t *primes, int num, gmp_randstate_t state) {
 	mpz_init(r);
 	mpz_init(pr);
 	// mpz_init_set_ui(one, 1);
-	int i;
-	for (i = 0; i < num; i++) {
+	for (int i = 0; i < num; i++) {
 		printf("generatePrimes3\n");
 		uint32_t x = gmp_urandomb_ui(state, bc);
 		printf("generatePrimes4\n");
@@ -288,10 +287,9 @@ splitSecret(uint32_t secret, uint32_t *parts, int n, int t, int N, int *w) {
 	sequence[1] = d[0];
 	sequence[2] = d[5] * d[3];
 	sequence[3] = d[1] * d[2];
-	int i;
 
 	uint32_t **powSet = malloc(sizeof(uint32_t*) * (n*n));
-	for (i = 0; i < (n*n); i++) {
+	for (int i = 0; i < (n*n); i++) {
 		powSet[i] = malloc(sizeof(uint32_t) * n);
 	}
 	printf("here\n");
@@ -303,7 +301,7 @@ splitSecret(uint32_t secret, uint32_t *parts, int n, int t, int N, int *w) {
 	int leftFirst = 1;
 	int rightFirst = 1;
 
-	for(i = 0; i < (n * n); i++) {
+	for(int i = 0; i < (n * n); i++) {
 		int weightTotal = 0;
 		uint32_t numTotal = 1;
 		int j = 0;
@@ -362,7 +360,7 @@ splitSecret(uint32_t secret, uint32_t *parts, int n, int t, int N, int *w) {
 
 	mpz_add(sDash, r, diff);
 
-	for (i = 0; i < n; i += 2) {
+	for (int i = 0; i < n; i += 2) {
 		mpz_t k, seq;
 		mpz_inits(k, seq);
 		mpz_set_ui(seq, sequence[i]);
@@ -413,8 +411,7 @@ recoverSecret(uint32_t *parts, int len) {
 	uint32_t remainders[len/2];
 	uint32_t modules[len/2];
 	int index = 0;
-	int i;
-	for (i = 0; i < len; i += 2) {
+	for (int i = 0; i < len; i += 2) {
 		modules[index] = parts[i];
 		remainders[index] = parts[i+1];
 		index++;
@@ -425,14 +422,14 @@ recoverSecret(uint32_t *parts, int len) {
 
 	mpz_t module;
 	mpz_init_set_ui(module, 1);
-	for (i = 0; i < len/2; i++){
+	for (int i = 0; i < len/2; i++){
 		mpz_set_ui(tempm, modules[i]);
 		mpz_mul(module, module, tempm);
 	}
 
 	mpz_t result;
 	mpz_init(result);
-	for (i = 0; i < len/2; i++){
+	for (int i = 0; i < len/2; i++){
 		mpz_t temp, tempr, ti, rmt, rmti, ra;
 		mpz_inits(temp, tempr, ti, rmt, rmti, ra);
 		mpz_set_ui(tempm, modules[i]);
@@ -459,8 +456,7 @@ int
 main() {
 
 	int count = 0;
-	int k;
-	for (k = 0; k < 256; k++) {
+	for (int k = 0; k < 256; k++) {
 		uint32_t secret = k;
 		int n = 4;
 		int t = 4;
