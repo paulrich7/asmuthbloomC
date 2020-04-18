@@ -9,4 +9,4 @@ all: $(BINS)
 clean:
 	$(RM) $(BINS)
 
-asmuthbloom: LDLIBS = -lgmp
+asmuthbloom: LDLIBS = -lgmp -lm

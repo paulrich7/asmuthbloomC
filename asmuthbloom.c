@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdint.h>
+#include <math.h>
 #include <sys/types.h>
 #include <assert.h>
 
@@ -24,12 +25,14 @@ generatePrimes(uint32_t *primes, int num) {//, gmp_randstate_t state) {
 	mpz_init(pr);
 	// mpz_init_set_ui(one, 1);
 	for (int i = 0; i < num; i++) {
-		uint32_t x = gmp_urandomb_ui(state, bc);
+
+		uint32_t x = rand() % (int)(pow(2, bc) - pow(2,bc-1));
+		x += pow(2,bc-1);
+
+		// uint32_t x = gmp_urandomb_ui(state, bc);
 		mpz_set_ui(r, x);
 		mpz_nextprime(pr, r);
-		printf("%lu prime, %lu\n", mpz_get_ui(pr), x);
-		int random = rand() % 256;
-		printf("%d rand\n", random);
+		// printf("%lu prime, %lu\n", mpz_get_ui(pr), mpz_get_ui(r));
 		primes[i] = mpz_get_ui(pr);
 
 		// mpz_add(bc, bc, one);
@@ -287,44 +290,59 @@ splitSecret(uint32_t secret, uint32_t *parts, int n, int t, int N, int *w) {
 
 
 	//Bit vector for powerset
-	uint32_t leftPart, rightPart;
-	leftPart = 0;
-	rightPart = 0;
+	mpz_t leftPart, rightPart;
+	mpz_init(leftPart);
+	mpz_init(rightPart);
+	// leftPart = 0;
+	// rightPart = 0;
 	int leftFirst = 1;
 	int rightFirst = 1;
 
 	for (int i = 0; i < (n*n); i++) {
 		int weightTotal = 0;
-		uint32_t numTotal = 1;
+		mpz_t numTotal;
+		mpz_init_set_ui(numTotal, 1);
 		for (int j = 0; j < n; j++) {
 			if (i & (1<<j)) {
-				numTotal = numTotal * sequence[j];
+				mpz_t temp;
+				mpz_init_set_ui(temp, sequence[j]);
+				mpz_mul(numTotal, numTotal, temp);
+				// numTotal = numTotal * sequence[j];
 				weightTotal += w[j];
+				mpz_clear(temp);
 			}
 		}
 		if (weightTotal < t) {
 			if (rightFirst == 1) {
-				rightPart = numTotal;
+				mpz_set(rightPart, numTotal);
 				rightFirst = 0;
 			}
 			else {
-				if (rightPart < numTotal) {
-					rightPart = numTotal;
+				if (mpz_cmp(rightPart, numTotal) < 0) {
+					mpz_set(rightPart, numTotal);
+					// rightPart = numTotal;
 				}
 			}
 		}
 		else {
 			if (leftFirst == 1) {
-				leftPart = numTotal;
+				mpz_set(leftPart, numTotal);
+				// leftPart = numTotal;
 				leftFirst = 0;
 			}
 			else {
-				if (leftPart > numTotal) {
-					leftPart = numTotal;
+				if (mpz_cmp(leftPart, numTotal) > 0) {
+					mpz_set(leftPart, numTotal);
+					// leftPart = numTotal;
 				}
 			}
 		}
+		mpz_clear(numTotal);
 	}
+
+	printf("leftPart: %lu, rightPart: %lu\n", mpz_get_ui(leftPart), mpz_get_ui(rightPart));
+	printf("l > r: ");
+	printf(mpz_cmp(leftPart, rightPart) > 0 ? "true\n" : "false\n");
 
 
 	// uint32_t **powSet = malloc(sizeof(uint32_t*) * (n*n));
@@ -380,13 +398,17 @@ splitSecret(uint32_t secret, uint32_t *parts, int n, int t, int N, int *w) {
 	mpz_init(range);
 	mpz_init(lp);
 	mpz_init(rp);
-	mpz_init_set_ui(lp, leftPart);
-	mpz_init_set_ui(rp, rightPart);
+	mpz_init_set(lp, leftPart);
+	mpz_init_set(rp, rightPart);
+	mpz_clear(leftPart);
+	mpz_clear(rightPart);
 	mpz_sub(range, lp, rp);
 	size_t bc = mpz_sizeinbase(range, 2);
 	mpz_t r;
 	mpz_init(r);
-	mpz_urandomb(r, state, bc-1);
+	uint32_t random = rand() % (int)(pow(2,bc));
+	// mpz_urandomb(r, state, bc-1);
+	mpz_set_ui(r, random);
 	printf("splitSecret2rand %lu\n", mpz_get_ui(r));
 	mpz_add(r, r, rp);
 	mpz_t sDash;
@@ -406,14 +428,17 @@ splitSecret(uint32_t secret, uint32_t *parts, int n, int t, int N, int *w) {
 
 	// printf("splitSecret2asdfs\n");
 
-	for (int i = 0; i < n; i += 2) {
+	int j = 0;
+	for (int i = 0; i < n*2; i += 2) {
 		mpz_t k, seq;
 		mpz_init(k);
 		mpz_init(seq);
-		mpz_set_ui(seq, sequence[i]);
+		mpz_set_ui(seq, sequence[j]);
 		mpz_mod(k, sDash, seq);
+		// printf("seq: %lu\n", mpz_get_ui(seq));
 		parts[i] = mpz_get_ui(seq);
 		parts[i+1] = mpz_get_ui(k);
+		j++;
 		mpz_clear(k);
 		mpz_clear(seq);
 	}
@@ -486,8 +511,10 @@ recoverSecret(uint32_t *parts, int len) {
 	mpz_t module;
 	mpz_init_set_ui(module, 1);
 	for (int i = 0; i < len/2; i++){
+		// printf("module: %lu\n", modules[i]);
 		mpz_set_ui(tempm, modules[i]);
 		mpz_mul(module, module, tempm);
+		
 	}
 	// printf("recoverSecret\n");
 
@@ -502,13 +529,18 @@ recoverSecret(uint32_t *parts, int len) {
 		mpz_init(rmti);
 		mpz_init(ra);
 		mpz_set_ui(tempm, modules[i]);
+		// printf("recoverSecretbd\n");
 		mpz_tdiv_q(temp, module, tempm);
+		// printf("recoverSecretad\n");
 		mpz_invert(ti, temp, tempm);
 		mpz_set_ui(tempr, remainders[i]);
 		mpz_mul(rmt, tempr, temp);
 		mpz_mul(rmti, rmt, ti);
 		mpz_add(ra, result, rmti);
+		// printf("recoverSecretbm\n");
+		// printf("ra: %lu, module: %lu\n", mpz_get_ui(ra), mpz_get_ui(module));
 		mpz_mod(result, ra, module);
+		// printf("recoverSecretam\n");
 		mpz_clear(temp);
 		mpz_clear(tempr);
 		mpz_clear(ti);
@@ -546,8 +578,12 @@ main() {
 		uint32_t parts[n*2];
 		splitSecret(secret, parts, n, t, N, w);
 
-		uint32_t array[4] = {parts[0],parts[1],parts[4],parts[5]};
-		int recoveredSecret = recoverSecret(array, 4);
+		for(int i = 0; i < n * 2; i++) {
+			printf("parts: %lu\n", parts[i]);
+		}
+
+		uint32_t array[6] = {parts[0],parts[1],parts[2],parts[3],parts[4],parts[5]};
+		int recoveredSecret = recoverSecret(array, 6);
 
 		if (k == recoveredSecret) {
 			count++;
